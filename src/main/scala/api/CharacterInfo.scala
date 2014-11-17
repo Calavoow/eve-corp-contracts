@@ -19,7 +19,8 @@ object CharacterInfo extends LazyLogging {
 			characterInfos
 		} catch {
 			case aex : ApiException ⇒
-				logger.error("An error occurred when querying the EVE API: {}", aex)
+				logger.error("An error occurred when querying the EVE API.")
+				logger.debug("ApiException: ", aex)
 				Set()
 		}
 	}
