@@ -1,3 +1,4 @@
+import java.io.InputStreamReader
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -21,7 +22,7 @@ object Main extends LazyLogging {
 		}
 		val auth = new ApiAuthorization(keyId, verifCode)
 
-		val stationMap = readStations("src/main/resources/staStations.csv")
+		val stationMap = readStations("staStations.csv")
 		val contractsObservable = Contract.contractsObservable(auth)
 		contractsObservable.subscribe(contracts ⇒ {
 			val outstandingContracts = contracts.filter(_.getStatus == ContractStatus.OUTSTANDING)
@@ -33,7 +34,8 @@ object Main extends LazyLogging {
 	}
 
 	def readStations(filename: String): Map[Int, String] = {
-		val reader = CSVReader.open(filename)
+		val streamReader = new InputStreamReader(getClass.getClassLoader.getResourceAsStream(filename))
+		val reader = CSVReader.open(streamReader)
 		val withHeaders = reader.all().drop(1)
 		withHeaders.map(list ⇒ {
 			list(0).toInt → list(1)
