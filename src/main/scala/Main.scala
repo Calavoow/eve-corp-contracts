@@ -8,8 +8,6 @@ import com.github.tototoshi.csv.CSVReader
 import com.typesafe.scalalogging.LazyLogging
 import config.Config
 
-import scala.collection.JavaConversions._
-
 object Main extends LazyLogging {
 	def main(args: Array[String]) {
 
@@ -25,8 +23,7 @@ object Main extends LazyLogging {
 
 		val stationMap = readStations("src/main/resources/staStations.csv")
 		val contractsObservable = Contract.contractsObservable(auth)
-		contractsObservable.subscribe(contract ⇒ {
-			val contracts = contract.getAll.toSet
+		contractsObservable.subscribe(contracts ⇒ {
 			val outstandingContracts = contracts.filter(_.getStatus == ContractStatus.OUTSTANDING)
 			logger.info(contractsToString(outstandingContracts, stationMap))
 		})

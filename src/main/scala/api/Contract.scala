@@ -6,16 +6,18 @@ import java.util.concurrent.TimeUnit
 import com.beimin.eveapi.core.ApiAuthorization
 import com.beimin.eveapi.corporation.contract.ContractsParser
 import com.beimin.eveapi.exception.ApiException
-import com.beimin.eveapi.shared.contract.ContractsResponse
+import com.beimin.eveapi.shared.contract.EveContract
 import com.typesafe.scalalogging.LazyLogging
 import rx.functions.Action0
 import rx.lang.scala.{Observable, Subscriber}
-import rx.schedulers.Schedulers // Convert Java objects to Scala objects implicitly
+import rx.schedulers.Schedulers
+
+import scala.collection.JavaConversions._
 
 object Contract extends LazyLogging {
-	def contractsObservable(auth: ApiAuthorization): Observable[ContractsResponse] = {
+	def contractsObservable(auth: ApiAuthorization): Observable[Set[EveContract]] = {
 		val parser = ContractsParser.getInstance()
-		def getContracts(subscriber: Subscriber[ContractsResponse]): Option[Long] = {
+		def getContracts(subscriber: Subscriber[Set[EveContract]]): Option[Long] = {
 			logger.debug("Fetching new contracts")
 			try {
 				val response = parser.getResponse(auth)
@@ -28,7 +30,7 @@ object Contract extends LazyLogging {
 					subscriber.onError(new RuntimeException(response.getError.toString))
 					None
 				} else {
-					subscriber.onNext(response)
+					subscriber.onNext(response.getAll.toSet)
 					Some(response.getCachedUntil.getTime - new Date().getTime)
 				}
 			} catch {
@@ -40,7 +42,7 @@ object Contract extends LazyLogging {
 			}
 		}
 
-		Observable[ContractsResponse](observer ⇒ {
+		Observable[Set[EveContract]](observer ⇒ {
 			val worker = Schedulers.newThread().createWorker()
 			def scheduleContracts(delay: Long) {
 				worker.schedule(new Action0 {
