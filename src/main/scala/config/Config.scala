@@ -2,11 +2,11 @@ package config
 
 import java.io.File
 
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.LazyLogging
 
 object Config extends LazyLogging {
-	implicit class RichConfig(val underlying: Config) extends AnyVal {
+	implicit class RichConfig(val underlying: com.typesafe.config.Config) extends AnyVal {
 		def getOptional[T](path: String, f: (String ⇒ T)) = if(underlying.hasPath(path)) {
 			Some(f(path))
 		} else {
