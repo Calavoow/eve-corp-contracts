@@ -1,6 +1,8 @@
 package config
 
-import com.typesafe.config.{ConfigFactory, Config}
+import java.io.File
+
+import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.LazyLogging
 
 object Config extends LazyLogging {
@@ -13,7 +15,7 @@ object Config extends LazyLogging {
 	}
 
 	def readApiConfig(location: String) : Option[(Int, String)]= {
-		val config = ConfigFactory.load("api")
+		val config = ConfigFactory.parseFile(new File("api.conf"))
 		val keyOption = config.getOptional("api.keyId", config.getInt)
 		keyOption match {
 			case None ⇒
